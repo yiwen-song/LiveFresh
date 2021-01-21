@@ -18,11 +18,13 @@ from (select shop, brand, sum(sales) as total_sales
 		from (select * from datasets_sales union select * from datasets_larisa) a
 group by brand,shop) b;
 
---3.rank each brand's total sales across shop by year
-select year_nbr, brand, total_sales, rank() over  (partition by year_nbr order by total_sales desc) as rank
-from (select year(date) as year_nbr, brand, sum(sales) as total_sales
+--3.each brand's total sales across shop by year
+select * from (select year(date) as year_nbr, brand, sum(sales) as total_sales
 			from (select * from datasets_sales union select * from datasets_larisa)  a 
 				group by year(date), brand) b
+pivot(sum(total_sales) 
+for year_nbr
+			in([2012],[2013],[2014],[2015],[2016],[2017],[2018]) )as pivottable
 
 --4.rank the avg yearly sale by city, add city population rank of 2018 to the table, 1 is the most pop 
 select c.city, avg(total_sales) as avg_year_sale, rank() over  (order by avg(total_sales) desc) as rank_sale , pop2018, rank() over (order by pop2018 desc) as rank_pop
