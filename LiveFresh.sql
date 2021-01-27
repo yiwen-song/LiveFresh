@@ -3,7 +3,7 @@ select * from datasets_larisa
 select * from datasets_population
 select * from datasets_shops
 
---1.summarize the sales amount and quanlity by city, shop
+--1.summarize the sales amount and quanlity by shop, city
 select shop, city, sum(sales) as total_sales, sum(quantity) as total_quantity
 from (select * from datasets_sales 
 		union select * from datasets_larisa) a 
@@ -12,13 +12,15 @@ on a.shop=b.column_1
 group by city, shop
 order by total_sales desc, total_quantity desc;
 
---2.rank the total sales amount by brand for each shop
+--2.rank top 3 from the total sales amount by brand for each shop
+select * from (
 select shop, brand, total_sales,  rank() over  (partition by shop order by total_sales desc) as ranking
 from (select shop, brand, sum(sales) as total_sales
 		from (select * from datasets_sales union select * from datasets_larisa) a
-group by brand,shop) b;
+group by brand,shop) b ) c
+where ranking between 1 and 3
 
---3.each brand's total sales across shop by year
+--3.each brand's total sales across shops by year
 select * from (select year(date) as year_nbr, brand, sum(sales) as total_sales
 			from (select * from datasets_sales union select * from datasets_larisa)  a 
 				group by year(date), brand) b
@@ -37,14 +39,7 @@ on c.city = d.city
 group by c.city, pop2018
 order by rank_sale;
 
---5. list shop_6 5 years total sale with running total (cumulative total)
-select year(date) as year_nbr, sum(sales) as sales_total,   sum(sum(sales) ) over (order by year(date)) as running_total 
-from datasets_sales
-where shop='shop_6'
-group by year(date)
-order by year_nbr
-
---6.list shop_6 each brand's yearly sales from 2016 to 2018
+--5.list shop_6 each brand's yearly sales from 2016 to 2018
 select brand, 
 	   year(date) as year_nbr,
 	   sum(sales) as yearly_sales
