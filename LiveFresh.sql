@@ -28,7 +28,7 @@ pivot(sum(total_sales)
 for year_nbr
 			in([2012],[2013],[2014],[2015],[2016],[2017],[2018]) )as pivottable
 
---4.rank the avg yearly sale by city, add city population rank of 2018 to the table, 1 is the most pop 
+--4.rank the avg yearly sales by city, add city population rank of 2018 to the table, 1 is the most pop 
 select c.city, avg(total_sales) as avg_year_sale, rank() over  (order by avg(total_sales) desc) as rank_sale , pop2018, rank() over (order by pop2018 desc) as rank_pop
 from (
 select city, year(date) as year_nbr, sum(sales) as total_sales
